@@ -1,4 +1,13 @@
-remoter::client()
+## This script is intended for learning how to interact with a distributed
+## server running multiple R sessions.
+library(launchr)
+
+launch(nodes = 1, npernode = 16, server = "rhea.ccs.ornl.gov",
+       modules = c("r"), user = "ost", account = "gen001",
+       walltime = "01:00:00", rwd = "~/demo")
+
+## server submitted in queue. You MUST wait for node report
+remoter::client() # submit ONLY when server head node reports
 comm.size()
 comm.rank()
 
@@ -18,7 +27,11 @@ x = array(1, dim = c(4, 3, 2))
 x
 allreduce(x)
 
+## remember that data on the server is different from the data on 
+## the client (your local R session)
 exit()
+x
+s2c(x)
 x
 remoter::client()
 x
