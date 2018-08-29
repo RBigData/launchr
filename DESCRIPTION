@@ -17,4 +17,4 @@ Authors@R: c(
 URL: https://github.com/RBigData/launchr
 BugReports: https://github.com/RBigData/launchr/issues
 Maintainer: George Ostrouchov <ostrouchovg@ornl.gov>
-RoxygenNote: 6.0.1
+RoxygenNote: 6.1.0

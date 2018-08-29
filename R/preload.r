@@ -15,7 +15,7 @@
 #' starting the server.
 #' @param rwd Remote working directory as a string.
 #' @return A shell script as a vector of strings.
-#'
+#' @export
 preload_rhea = function(nodes = 1, npernode=16, walltime = "01:00:00",
                         user = "ost", machine = "rhea.ccs.ornl.gov",
                         port = 55555,
@@ -96,6 +96,10 @@ preload_rhea = function(nodes = 1, npernode=16, walltime = "01:00:00",
     preload_command
 }
 
+#' Constructs a string of arguments for ssh exection on Rhea
+#' @param port The port for server connection
+#' @value A string of ssh arguments.
+#' @export
 args_rhea = function(port = 55555) {
     paste0(" -f -L ", port, ":localhost:", port)
 }
