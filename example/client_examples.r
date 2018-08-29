@@ -1,5 +1,7 @@
 ## This script is intended for learning how to interact with a distributed
 ## server running multiple R sessions.
+devtools::install_github("RBigData/launchr")
+
 library(launchr)
 
 launch(nodes = 1, npernode = 16, server = "rhea.ccs.ornl.gov",
