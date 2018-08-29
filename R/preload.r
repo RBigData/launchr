@@ -1,3 +1,21 @@
+#' Constructs a shell script as a vector of strings. Its purpose is to run
+#' on a login node of rhea.ccs.ornl.gov, submit a pbdR server batch job that
+#' runs for a specified time or until closed. It also opens an ssh tunnel
+#' from the login node to the running server head node.
+#'
+#' @param nodes The number of nodes to allocate for the server.
+#' @param npernode The number of MPI ranks (R sessions) to start per node.
+#' @param walltime A string "hh:mm:ss" giving the maximum length of time
+#'                 in hours:minutes:seconds before server timeout shutdown.
+#' @param user Username for login.
+#' @param machine Hostname to run the server, resolvable on your platform.
+#' @param port The port used by the server.
+#' @param account Account used for your cluster allocation
+#' @param modules A vector of strings giving the modules to load before
+#' starting the server.
+#' @param rwd Remote working directory as a string.
+#' @return A shell script as a vector of strings.
+#'
 preload_rhea = function(nodes = 1, npernode=16, walltime = "01:00:00",
                         user = "ost", machine = "rhea.ccs.ornl.gov",
                         port = 55555,
