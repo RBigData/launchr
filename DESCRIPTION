@@ -1,20 +1,22 @@
 Package: launchr
 Type: Package
-Title: TODO
+Title: Launch a distributed R server on a cluster from a remote R session
 Version: 0.1-0
-Description: TODO
+Description: Provides ease of use and configuration components for controlling a distributed set of R instances on a cluster from a remote R session (e.g. running on a laptop with RStudio). Other parallel approaches (multicore, multithreading, and GPU) are compatible with a launchr() distributed server session, which provides a means of specifying the number of R sessions per node, leaving cores available for these shared-memory applications. The intent is to provide an easy-to-use interactive SPMD-style develpment platform for distributed parallel programming in R. Leave BIG data on BIG platforms and control its analysis using R codes on your laptop.
 License: BSD 2-clause License + file LICENSE
 Depends:
     R (>= 3.2.0),
     remoter (>= 0.4-0)
 Imports:
-    pbdRPC (>= 0.1-0)
+    pbdRPC (>= 0.2-2)
+Enhances: pbdCS, pbdMPI, pbdDMAT, kazaam
 ByteCompile: yes
 Authors@R: c(
-    person("George", "Ostrouchov", role=c("aut", "cre"), email="ostrouchovg@ornl.gov"),
+    person("George", "Ostrouchov", role=c("aut", "cre"), email="ostrouchovg@ornl.gov"), person("Drew", "Schmidt", role="aut"),
     person("ORNL", role = "cph")
     )
 URL: https://github.com/RBigData/launchr
 BugReports: https://github.com/RBigData/launchr/issues
 Maintainer: George Ostrouchov <ostrouchovg@ornl.gov>
 RoxygenNote: 6.1.0
+NeedsCompilation: no
