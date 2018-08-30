@@ -11,16 +11,13 @@ distributed set of R instances on a cluster from a remote R session
 (e.g. running on a laptop with RStudio). The intent is to provide an
 easy-to-use interactive SPMD-style develpment platform for distributed
 parallel programming in R. Other parallel approaches (multicore,
-multithreading, and GPU) are compatible with a 
-```{r}
-launchr()
-```
-distributed server session, which provides a means of specifying the
-number of R sessions per node, leaving cores available for these
-shared-memory applications.
+multithreading, and GPU) are compatible with a launchr() distributed
+server session, which provides a means of specifying the number of R
+sessions per node, leaving cores available for these shared-memory
+applications.
 
-Leave BIG data on BIG platforms and
-control its analysis using R codes on your laptop.
+Leave BIG data on BIG platforms and control its analysis using R codes
+on your laptop.
 
 We started with one PBS-managed cluster and will continue to add more
 configurations. At this point, adding a new cluster configuration is a
