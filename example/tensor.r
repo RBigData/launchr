@@ -1,14 +1,14 @@
 library(launchr)
 
 launch(nodes = 4, npernode = 16, server = "rhea.ccs.ornl.gov",
-       modules = c("r", "hdf5"), user = "ost",
-       account = "gen001", walltime = "01:00:00", rwd = "~/demo")
+       modules = c("r", "hdf5"), user = Sys.getenv("USER"),
+       account = "your_account", walltime = "01:00:00", rwd = "~")
 ## server submitted in queue. You MUST wait for it to start.
 remoter::client() # submit ONLY when server head node reports
 comm.size()
 
 ##
-## Note: After an interactive development phase, the code below 
+## Note: After an interactive development phase, the code below
 ## (without the client-server section above) would be run in batch.
 ## Plotting functions below will run in batch but are temporarily
 ## disabled for the client-server demo.
@@ -49,7 +49,7 @@ barrier() # all ranks must wait for directory creation
 ## parallel read the xgc mesh file and allgather to ranks
 mesh = read_xgc_mesh(file_mesh)$rz
 
-## Parallel read a window of steps and create tensor array as 
+## Parallel read a window of steps and create tensor array as
 ## list with attributes.  Mesh dimension is split across ranks.
 tens = read_xgc_window(file_var, var, w_center, window)$Data
 tdim = dim(tens) # tensor dimensions (1, 2, 3d) = (toro, time, mesh)

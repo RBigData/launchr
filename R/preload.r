@@ -16,9 +16,9 @@
 #' @param rwd Remote working directory as a string.
 #' @return A shell script as a vector of strings.
 preload_rhea = function(nodes = 1, npernode=16, walltime = "01:00:00",
-                        user = "ost", machine = "rhea.ccs.ornl.gov",
+                        user = NULL, machine = "rhea.ccs.ornl.gov",
                         port = 55555,
-                        account = "gen011", modules=c("r"), rwd = "~") {
+                        account = NULL, modules=c("r"), rwd = "~") {
     ## Returns a script as a vector of strings to run on a login node so that it
     ##    starts a pbdR server and opens an ssh tunnel to its head node on
     ##    the specified port

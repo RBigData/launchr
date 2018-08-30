@@ -14,11 +14,11 @@
 #' @return A shell script as a vector of strings.
 #' @export
 launch = function(nodes, npernode = 16, server = "rhea.ccs.ornl.gov",
-                  modules = c("r"), user = Sys.getenv("USER"), 
+                  modules = c("r"), user = Sys.getenv("USER"),
                   account = NULL, walltime = "01:00:00", rwd = "~/") {
   ## parameters that will eventually migrate to control structures
   port = 55555
-  
+
   if(server == "rhea.ccs.ornl.gov") {
     pscript = preload_rhea(nodes, npernode, rwd = rwd,
                            modules = c("r/3.4.2", "hdf5"), port = port)
@@ -26,7 +26,7 @@ launch = function(nodes, npernode = 16, server = "rhea.ccs.ornl.gov",
     args = args_rhea(port)
 
     rserver = pbdRPC::machine(hostname = server,
-                              user = "ost",
+                              user = user,
                               exec.type = "ssh",
                               args = args)
   } else {
