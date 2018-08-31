@@ -14,6 +14,9 @@
 #' @param modules A vector of strings giving the modules to load before
 #' starting the server.
 #' @param rwd Remote working directory as a string.
+#' @param verbose Should the preload command be printed?
+#' @param warn_on_fork Set to \code{FALSE} to suppress a warning when forking
+#' a process (for example, when invoking \code{parallel::mclapply()}).
 #' @return A shell script as a vector of strings.
 preload_rhea = function(nodes = 1, npernode=16, walltime = "01:00:00",
                         user = NULL, machine = "rhea.ccs.ornl.gov",
@@ -100,6 +103,7 @@ preload_rhea = function(nodes = 1, npernode=16, walltime = "01:00:00",
 
 #' Constructs a string of arguments for ssh exection on Rhea
 #' @param port The port for server connection
+#' @param verbose Should the args be printed?
 #' @value A string of ssh arguments.
 args_rhea = function(port = 55555, verbose = FALSE) {
     args = paste0(" -f -L ", port, ":localhost:", port)
@@ -196,6 +200,7 @@ preload_or_condo= function(nodes = 1, npernode=16, walltime = "01:00:00",
 
 #' Constructs a string of arguments for ssh exection on Rhea
 #' @param port The port for server connection
+#' @param verbose Should the args be printed?
 #' @value A string of ssh arguments.
 args_or_condo = function(port = 55555, verbose=FALSE) {
     args = paste0(" -f -L ", port, ":localhost:", port)
