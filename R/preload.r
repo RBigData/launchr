@@ -1,3 +1,14 @@
+#' Wraps a script with shell commands to write it to a file
+file_it = function(script, file_name, eof = NULL) {
+    if(is.null(eof)) eof = paste0("..pbdR-EOF", num, "..")
+
+    c(
+        paste0("cat >> ", file_name, " << ", eof),
+        script,
+        eof
+    )
+}
+
 #' Constructs a shell script as a vector of strings. Its purpose is to run
 #' on a login node of rhea.ccs.ornl.gov, submit a pbdR server batch job that
 #' runs for a specified time or until closed. It also opens an ssh tunnel
@@ -19,7 +30,7 @@ preload_rhea = function(nodes = 1, npernode=16, walltime = "01:00:00",
                         user = NULL, machine = "rhea.ccs.ornl.gov",
                         port = 55555,
                         account = NULL, modules=c("r"), rwd = "~",
-                        verbose = FALSE, warn_on_fork = TRUE) {
+                        show = FALSE, warn_on_fork = TRUE) {
     ## Returns a script as a vector of strings to run on a login node so that it
     ##    starts a pbdR server and opens an ssh tunnel to its head node on
     ##    the specified port
@@ -93,7 +104,7 @@ preload_rhea = function(nodes = 1, npernode=16, walltime = "01:00:00",
 
     ## put it all together
     preload_command = c(cd, clean, make_preload_script_file, run_file)
-    if(verbose) print(preload_command)
+    if(show) print(preload_command)
 
     preload_command
 }
@@ -101,9 +112,9 @@ preload_rhea = function(nodes = 1, npernode=16, walltime = "01:00:00",
 #' Constructs a string of arguments for ssh exection on Rhea
 #' @param port The port for server connection
 #' @value A string of ssh arguments.
-args_rhea = function(port = 55555, verbose = FALSE) {
+args_rhea = function(port = 55555, show = FALSE) {
     args = paste0(" -f -L ", port, ":localhost:", port)
-    if(verbose) print(args)
+    if(show) print(args)
     args
 }
 
@@ -111,7 +122,7 @@ preload_or_condo= function(nodes = 1, npernode=16, walltime = "01:00:00",
                            user = NULL, machine = "rhea.ccs.ornl.gov",
                            port = 55555,
                            account = NULL, modules=c("R"), rwd = "~",
-                           verbose = FALSE, warn_on_fork = TRUE) {
+                           show = FALSE, warn_on_fork = TRUE) {
     ## Returns a script as a vector of strings to run on a login node so that it
     ##    starts a pbdR server and opens an ssh tunnel to its head node on
     ##    the specified port
@@ -189,7 +200,7 @@ preload_or_condo= function(nodes = 1, npernode=16, walltime = "01:00:00",
 
     ## put it all together
     preload_command = c(cd, clean, make_preload_script_file, run_file)
-    if(verbose) print(preload_command)
+    if(show) print(preload_command)
 
     preload_command
 }
@@ -197,9 +208,9 @@ preload_or_condo= function(nodes = 1, npernode=16, walltime = "01:00:00",
 #' Constructs a string of arguments for ssh exection on Rhea
 #' @param port The port for server connection
 #' @value A string of ssh arguments.
-args_or_condo = function(port = 55555, verbose=FALSE) {
+args_or_condo = function(port = 55555, show=FALSE) {
     args = paste0(" -f -L ", port, ":localhost:", port)
-    if(verbose) print(args)
+    if(show) print(args)
 
     args
 }
