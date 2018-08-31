@@ -1,6 +1,6 @@
 # launchr
 
-* **Version:** 0.1-0
+* **Version:** 0.1-1
 * **License:** [BSD 2-Clause](http://opensource.org/licenses/BSD-2-Clause)
 * **Author:** George Ostrouchov
 * **Project home**: https://github.com/RBigData/launchr
@@ -19,7 +19,7 @@ applications.
 Leave BIG data on BIG platforms and control its analysis using R codes
 on your laptop.
 
-We started with one PBS-managed cluster and will continue to add more
+We started with one PBS-managed cluster and are adding more
 configurations. At this point, adding a new cluster configuration is a
 manual process that learns from existing examples. Once a few clusters
 are configured, we plan to morph this into a more general and easier

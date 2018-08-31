@@ -1,7 +1,7 @@
 Package: launchr
 Type: Package
 Title: Launch a distributed R server on a cluster from a remote R session
-Version: 0.1-0
+Version: 0.1-1
 Description: Provides ease of use and configuration components for
     controlling a distributed set of R instances on a cluster from a
     remote R session (e.g. running on a laptop with RStudio). Other

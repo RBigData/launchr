@@ -18,7 +18,8 @@
 preload_rhea = function(nodes = 1, npernode=16, walltime = "01:00:00",
                         user = NULL, machine = "rhea.ccs.ornl.gov",
                         port = 55555,
-                        account = NULL, modules=c("r"), rwd = "~") {
+                        account = NULL, modules=c("r"), rwd = "~",
+                        verbose = FALSE, warn_on_fork = TRUE) {
     ## Returns a script as a vector of strings to run on a login node so that it
     ##    starts a pbdR server and opens an ssh tunnel to its head node on
     ##    the specified port
@@ -34,6 +35,7 @@ preload_rhea = function(nodes = 1, npernode=16, walltime = "01:00:00",
                   preload_script_file_name)
 
     ## create qsub (head node) PBS script
+    wof = ifelse(warn_on_fork, "", " --mca mpi_warn_on_fork 0 ")
     pbs_parameters = c(
         "#!/bin/bash",
         "# File name: pbdR_server",
@@ -50,7 +52,7 @@ preload_rhea = function(nodes = 1, npernode=16, walltime = "01:00:00",
         "module list",
         cd,
         paste0("hostname > ", message_file_name),
-        paste0("mpirun --map-by ppr:", npernode,
+        paste0("mpirun ", wof, " --map-by ppr:", npernode,
                ":node Rscript -e 'pbdCS::pbdserver()'")
     )
     head_script = c(pbs_parameters, mod_vec, commands)
@@ -73,7 +75,7 @@ preload_rhea = function(nodes = 1, npernode=16, walltime = "01:00:00",
                     " -N \\$(cat ", message_file_name, ")")
 
     ## commands to report login node and head node names
-    tell = c("echo 'server login: ' \\$(hostname)",
+    tell = c("echo 'server login node: ' \\$(hostname)",
              paste0("echo 'server head node: ' \\$(cat ",
                     message_file_name, ")"))
 
@@ -91,6 +93,7 @@ preload_rhea = function(nodes = 1, npernode=16, walltime = "01:00:00",
 
     ## put it all together
     preload_command = c(cd, clean, make_preload_script_file, run_file)
+    if(verbose) print(preload_command)
 
     preload_command
 }
@@ -98,6 +101,105 @@ preload_rhea = function(nodes = 1, npernode=16, walltime = "01:00:00",
 #' Constructs a string of arguments for ssh exection on Rhea
 #' @param port The port for server connection
 #' @value A string of ssh arguments.
-args_rhea = function(port = 55555) {
-    paste0(" -f -L ", port, ":localhost:", port)
+args_rhea = function(port = 55555, verbose = FALSE) {
+    args = paste0(" -f -L ", port, ":localhost:", port)
+    if(verbose) print(args)
+    args
+}
+
+preload_or_condo= function(nodes = 1, npernode=16, walltime = "01:00:00",
+                           user = NULL, machine = "rhea.ccs.ornl.gov",
+                           port = 55555,
+                           account = NULL, modules=c("R"), rwd = "~",
+                           verbose = FALSE, warn_on_fork = TRUE) {
+    ## Returns a script as a vector of strings to run on a login node so that it
+    ##    starts a pbdR server and opens an ssh tunnel to its head node on
+    ##    the specified port
+
+    ## set working directory and file names to be created there
+    cd = paste0("cd ", rwd)
+    head_script_file_name = ".pbdR_server.pbs" # script to run on head node
+    message_file_name = ".pbdR_hostname"
+    preload_script_file_name = ".pbdR_lnode.sh"
+
+    ## file cleanup command
+    clean = paste("rm -f", head_script_file_name, message_file_name,
+                  preload_script_file_name)
+
+    ## create qsub (head node) PBS script
+    wof = ifelse(warn_on_fork, "", " --mca mpi_warn_on_fork 0 ")
+    pbs_parameters = c(
+        "#!/bin/bash",
+        "#PBS -N pbdR_server",
+        paste0("#PBS -A ", account),
+        "#PBS -l qos=std",
+        paste0("#PBS -l walltime=", walltime),
+        paste0("#PBS -l nodes=", nodes, ":ppn=32"),
+        "#PBS -q batch",
+        "#PBS -W group_list=cades-ccsd",
+        "#PBS -m abe",
+        "#PBS -e pbdRserver.e",
+        "#PBS -o pbdRserver.o"
+    )
+    mod_vec = vector("character", length(modules))
+    for(m in seq(along=modules))
+        mod_vec[m] = paste0("module load ", modules[m])
+    commands = c(
+        "module list",
+        cd,
+        paste0("hostname > ", message_file_name),
+        paste0("mpirun ", wof, " --map-by ppr:", npernode,
+               ":node Rscript -e 'pbdCS::pbdserver()'")
+    )
+    head_script = c(pbs_parameters, mod_vec, commands)
+
+    ## commands to write head script to its file
+    make_head_script_file = c(
+        paste0("cat >> ", head_script_file_name, " << ..PBS-EOF.."),
+        head_script,
+        "..PBS-EOF.."
+    )
+    ## command to qsub the script
+    qsub = paste0("qsub ", head_script_file_name)
+
+    ## commands to wait for server start with progress dots
+    wait_run = paste0("while [ ! -f ", message_file_name,
+                      " ]; do sleep 1; echo -n '.'; done; echo '.' ")
+
+    ## command to tunnel from login to head node
+    tunnel = paste0("ssh -f -L ", port, ":localhost:", port,
+                    " -N \\$(cat ", message_file_name, ")")
+
+    ## commands to report login node and head node names
+    tell = c("echo 'server login node: ' \\$(hostname)",
+             paste0("echo 'server head node: ' \\$(cat ",
+                    message_file_name, ")"))
+
+    preload_script = c(cd, make_head_script_file, qsub, wait_run, tunnel, tell)
+
+    ## commands to write login node script to its file
+    make_preload_script_file = c(
+        paste0("cat >> ", preload_script_file_name, " << '..LNODE-EOF..'"),
+        preload_script,
+        "..LNODE-EOF.."
+    )
+
+    ## command to run the login node script
+    run_file = paste0("source ", preload_script_file_name)
+
+    ## put it all together
+    preload_command = c(cd, clean, make_preload_script_file, run_file)
+    if(verbose) print(preload_command)
+
+    preload_command
+}
+
+#' Constructs a string of arguments for ssh exection on Rhea
+#' @param port The port for server connection
+#' @value A string of ssh arguments.
+args_or_condo = function(port = 55555, verbose=FALSE) {
+    args = paste0(" -f -L ", port, ":localhost:", port)
+    if(verbose) print(args)
+
+    args
 }

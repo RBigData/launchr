@@ -13,27 +13,47 @@
 #' @param rwd Remote working directory as a string.
 #' @return A shell script as a vector of strings.
 #' @export
-launch = function(nodes, npernode = 16, server = "rhea.ccs.ornl.gov",
-                  modules = c("r"), user = Sys.getenv("USER"),
+launch = function(nodes, npernode = 16, server = "set_me",
+                  modules = NULL, user = Sys.getenv("USER"),
                   account = NULL, walltime = "01:00:00", rwd = "~/") {
-  ## parameters that will eventually migrate to control structures
-  port = 55555
+    ## parameters that will eventually migrate to control structures
+    if(is.null(modules))
+        return(print("Please specify at least one module"))
+    if(is.null(account))
+        return(print("Please specify account"))
 
-  if(server == "rhea.ccs.ornl.gov") {
-    pscript = preload_rhea(nodes, npernode, rwd = rwd,
-                           modules = c("r/3.4.2", "hdf5"), port = port)
+    port = 55555
 
-    args = args_rhea(port)
+    if(server == "rhea.ccs.ornl.gov") {
+        pscript = preload_rhea(nodes, npernode, account = account, rwd = rwd,
+                               modules = modules, port = port)
 
-    rserver = pbdRPC::machine(hostname = server,
-                              user = user,
-                              exec.type = "ssh",
-                              args = args)
-  } else {
-    cat("Don't know how to launch on", server, "yet\n")
-    return(invisible(FALSE))
-  }
+        args = args_rhea(port)
+
+        rserver = pbdRPC::machine(hostname = server,
+                                  user = user,
+                                  exec.type = "ssh",
+                                  args = args)
+
+    } else if(server == "or-condo-login.ornl.gov") {
+        pscript = preload_or_condo(nodes, npernode, account = account,
+                                   rwd = rwd,
+                                   modules = modules, port = port)
+
+        args = args_or_condo(port)
+
+        rserver = pbdRPC::machine(hostname = server,
+                                  user = user,
+                                  exec.type = "ssh",
+                                  args = args)
+
+    } else {
+        cat("Don't know how to launch on", server, "yet\n")
+        return(invisible(FALSE))
+    }
 
     pbdRPC::start_cs(machine = rserver, cmd = "",
                      preload = paste0(pscript, collapse = "\n"))
+    return(invisible(TRUE))
+
 }
