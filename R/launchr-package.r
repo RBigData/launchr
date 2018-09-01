@@ -8,6 +8,7 @@
 #' @name launchr-package
 #' 
 #' @import pbdRPC
+#' @import remoter
 #' 
 #' @docType package
 #' @keywords package

@@ -8,8 +8,9 @@ runs for a specified time or until closed. It also opens an ssh tunnel
 from the login node to the running server head node.}
 \usage{
 preload_rhea(nodes = 1, npernode = 16, walltime = "01:00:00",
-  user = "ost", machine = "rhea.ccs.ornl.gov", port = 55555,
-  account = "gen011", modules = c("r"), rwd = "~")
+  user = NULL, machine = "rhea.ccs.ornl.gov", port = 55555,
+  account = NULL, modules = c("r"), rwd = "~", verbose = FALSE,
+  warn_on_fork = TRUE)
 }
 \arguments{
 \item{nodes}{The number of nodes to allocate for the server.}
@@ -31,6 +32,11 @@ in hours:minutes:seconds before server timeout shutdown.}
 starting the server.}
 
 \item{rwd}{Remote working directory as a string.}
+
+\item{verbose}{Should the preload command be printed?}
+
+\item{warn_on_fork}{Set to \code{FALSE} to suppress a warning when forking
+a process (for example, when invoking \code{parallel::mclapply()}).}
 }
 \value{
 A shell script as a vector of strings.

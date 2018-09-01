@@ -4,9 +4,9 @@
 \alias{launch}
 \title{Launches a persistent pbdR server on a cluster}
 \usage{
-launch(nodes, npernode = 16, server = "rhea.ccs.ornl.gov",
-  modules = c("r"), user = Sys.getenv("USER"), account = NULL,
-  walltime = "01:00:00", rwd = "~/")
+launch(nodes, npernode = 16, server = "set_me", modules = NULL,
+  user = Sys.getenv("USER"), account = NULL, walltime = "01:00:00",
+  rwd = "~/")
 }
 \arguments{
 \item{nodes}{The number of nodes to allocate for the server.}
