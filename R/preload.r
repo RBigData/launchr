@@ -65,7 +65,7 @@ preload_rhea = function(nodes = 1, npernode=16, walltime = "01:00:00",
     pbs_script = c(pbs_parameters, mod_vec, commands)
 
     ## commands to write head script to its file
-    make_pbs_script_file = file_it(pbs_script, pbs_script_file, "..PBS-EOF..")
+    make_pbs_file = file_it(pbs_script, pbs_file, "..PBS-EOF..")
 
     ## command to qsub the script
     qsub = paste0("qsub ", pbs_file)
@@ -82,16 +82,16 @@ preload_rhea = function(nodes = 1, npernode=16, walltime = "01:00:00",
     tell = c("echo 'server login node: ' \\$(hostname)",
              paste0("echo 'server head node: ' \\$(cat ", head_node, ")"))
 
-    lnode_script = c(cd, make_pbs_script_file, qsub, wait_run, tunnel, tell)
+    lnode_script = c(cd, make_pbs_file, qsub, wait_run, tunnel, tell)
 
     ## commands to write login node script to its file
-    make_lnode_script_file = file_it(lnode_script, lnode_script_file, "..LNODE-EOF..")
+    make_lnode_file = file_it(lnode_script, lnode_file, "..LNODE-EOF..")
 
     ## command to run the login node script
     run_file = paste0("source ", lnode_file)
 
     ## put it all together
-    lnode_command = c(cd, clean, make_lnode_script_file, run_file)
+    lnode_command = c(cd, clean, make_lnode_file, run_file)
     if(show) print(lnode_command)
 
     lnode_command
@@ -153,7 +153,7 @@ preload_or_condo = function(nodes = 1, npernode=16, walltime = "01:00:00",
     pbs_script = c(pbs_parameters, mod_vec, commands)
 
     ## commands to write head script to its file
-    make_pbs_script_file = file_it(pbs_script, pbs_file, "..PBS-EOF..")
+    make_pbs_file = file_it(pbs_script, pbs_file, "..PBS-EOF..")
 
     ## command to qsub the script
     qsub = paste0("qsub ", pbs_file)
@@ -170,16 +170,16 @@ preload_or_condo = function(nodes = 1, npernode=16, walltime = "01:00:00",
     tell = c("echo 'server login node: ' \\$(hostname)",
              paste0("echo 'server head node: ' \\$(cat ", head_node, ")"))
 
-    lnode_script = c(cd, make_pbs_script_file, qsub, wait_run, tunnel, tell)
+    lnode_script = c(cd, make_pbs_file, qsub, wait_run, tunnel, tell)
 
     ## commands to write login node script to its file
-    make_lnode_script_file = file_it(lnode_script, lnode_file, "..LNODE-EOF..")
+    make_lnode_file = file_it(lnode_script, lnode_file, "..LNODE-EOF..")
 
     ## command to run the login node script
     run_file = paste0("source ", lnode_file)
 
     ## put it all together
-    lnode_command = c(cd, clean, make_lnode_script_file, run_file)
+    lnode_command = c(cd, clean, make_lnode_file, run_file)
     if(show) print(lnode_command)
 
     lnode_command
