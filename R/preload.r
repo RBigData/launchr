@@ -1,12 +1,6 @@
 #' Wraps a script with shell commands to write it to a file
 file_it = function(script, file_name, eof = NULL) {
-    if(is.null(eof)) eof = paste0("..pbdR-EOF", num, "..")
-
-    c(
-        paste0("cat >> ", file_name, " << ", eof),
-        script,
-        eof
-    )
+    c(paste0("cat >> ", file_name, " << ", "'", eof, "'"), script, eof)
 }
 
 #' Constructs a shell script as a vector of strings. Its purpose is to run
@@ -40,13 +34,12 @@ preload_rhea = function(nodes = 1, npernode=16, walltime = "01:00:00",
 
     ## set working directory and file names to be created there
     cd = paste0("cd ", rwd)
-    head_script_file_name = ".pbdR_server.pbs" # script to run on head node
-    message_file_name = ".pbdR_hostname"
-    preload_script_file_name = ".pbdR_lnode.sh"
+    pbs_file = ".pbdR_server.pbs" # script to run on head node
+    head_node = ".pbdR_hostname"
+    lnode_file = ".pbdR_lnode.sh"
 
     ## file cleanup command
-    clean = paste("rm -f", head_script_file_name, message_file_name,
-                  preload_script_file_name)
+    clean = paste("rm -f", pbs_file, head_node, lnode_file)
 
     ## create qsub (head node) PBS script
     wof = ifelse(warn_on_fork, "", " --mca mpi_warn_on_fork 0 ")
@@ -65,51 +58,43 @@ preload_rhea = function(nodes = 1, npernode=16, walltime = "01:00:00",
     commands = c(
         "module list",
         cd,
-        paste0("hostname > ", message_file_name),
+        paste0("hostname > ", head_node),
         paste0("mpirun ", wof, " --map-by ppr:", npernode,
                ":node Rscript -e 'pbdCS::pbdserver()'")
     )
-    head_script = c(pbs_parameters, mod_vec, commands)
+    pbs_script = c(pbs_parameters, mod_vec, commands)
 
     ## commands to write head script to its file
-    make_head_script_file = c(
-        paste0("cat >> ", head_script_file_name, " << ..PBS-EOF.."),
-        head_script,
-        "..PBS-EOF.."
-    )
+    make_pbs_script_file = file_it(pbs_script, pbs_script_file, "..PBS-EOF..")
+
     ## command to qsub the script
-    qsub = paste0("qsub ", head_script_file_name)
+    qsub = paste0("qsub ", pbs_file)
 
     ## commands to wait for server start with progress dots
-    wait_run = paste0("while [ ! -f ", message_file_name,
+    wait_run = paste0("while [ ! -f ", head_node,
                       " ]; do sleep 1; echo -n '.'; done; echo '.' ")
 
     ## command to tunnel from login to head node
     tunnel = paste0("ssh -f -L ", port, ":localhost:", port,
-                    " -N \\$(cat ", message_file_name, ")")
+                    " -N \\$(cat ", head_node, ")")
 
     ## commands to report login node and head node names
     tell = c("echo 'server login node: ' \\$(hostname)",
-             paste0("echo 'server head node: ' \\$(cat ",
-                    message_file_name, ")"))
+             paste0("echo 'server head node: ' \\$(cat ", head_node, ")"))
 
-    preload_script = c(cd, make_head_script_file, qsub, wait_run, tunnel, tell)
+    lnode_script = c(cd, make_pbs_script_file, qsub, wait_run, tunnel, tell)
 
     ## commands to write login node script to its file
-    make_preload_script_file = c(
-        paste0("cat >> ", preload_script_file_name, " << '..LNODE-EOF..'"),
-        preload_script,
-        "..LNODE-EOF.."
-    )
+    make_lnode_script_file = file_it(lnode_script, lnode_script_file, "..LNODE-EOF..")
 
     ## command to run the login node script
-    run_file = paste0("source ", preload_script_file_name)
+    run_file = paste0("source ", lnode_file)
 
     ## put it all together
-    preload_command = c(cd, clean, make_preload_script_file, run_file)
-    if(show) print(preload_command)
+    lnode_command = c(cd, clean, make_lnode_script_file, run_file)
+    if(show) print(lnode_command)
 
-    preload_command
+    lnode_command
 }
 
 #' Constructs a string of arguments for ssh exection on Rhea
@@ -122,7 +107,7 @@ args_rhea = function(port = 55555, show = FALSE) {
     args
 }
 
-preload_or_condo= function(nodes = 1, npernode=16, walltime = "01:00:00",
+preload_or_condo = function(nodes = 1, npernode=16, walltime = "01:00:00",
                            user = NULL, machine = "rhea.ccs.ornl.gov",
                            port = 55555,
                            account = NULL, modules=c("R"), rwd = "~",
@@ -133,13 +118,12 @@ preload_or_condo= function(nodes = 1, npernode=16, walltime = "01:00:00",
 
     ## set working directory and file names to be created there
     cd = paste0("cd ", rwd)
-    head_script_file_name = ".pbdR_server.pbs" # script to run on head node
-    message_file_name = ".pbdR_hostname"
-    preload_script_file_name = ".pbdR_lnode.sh"
+    pbs_file = ".pbdR_server.pbs" # script to run on head node
+    head_node = ".pbdR_hostname"
+    lnode_file = ".pbdR_lnode.sh"
 
     ## file cleanup command
-    clean = paste("rm -f", head_script_file_name, message_file_name,
-                  preload_script_file_name)
+    clean = paste("rm -f", pbs_file, head_node, lnode_file)
 
     ## create qsub (head node) PBS script
     wof = ifelse(warn_on_fork, "", " --mca mpi_warn_on_fork 0 ")
@@ -162,51 +146,43 @@ preload_or_condo= function(nodes = 1, npernode=16, walltime = "01:00:00",
     commands = c(
         "module list",
         cd,
-        paste0("hostname > ", message_file_name),
+        paste0("hostname > ", head_node),
         paste0("mpirun ", wof, " --map-by ppr:", npernode,
                ":node Rscript -e 'pbdCS::pbdserver()'")
     )
-    head_script = c(pbs_parameters, mod_vec, commands)
+    pbs_script = c(pbs_parameters, mod_vec, commands)
 
     ## commands to write head script to its file
-    make_head_script_file = c(
-        paste0("cat >> ", head_script_file_name, " << ..PBS-EOF.."),
-        head_script,
-        "..PBS-EOF.."
-    )
+    make_pbs_script_file = file_it(pbs_script, pbs_file, "..PBS-EOF..")
+
     ## command to qsub the script
-    qsub = paste0("qsub ", head_script_file_name)
+    qsub = paste0("qsub ", pbs_file)
 
     ## commands to wait for server start with progress dots
-    wait_run = paste0("while [ ! -f ", message_file_name,
+    wait_run = paste0("while [ ! -f ", head_node,
                       " ]; do sleep 1; echo -n '.'; done; echo '.' ")
 
     ## command to tunnel from login to head node
     tunnel = paste0("ssh -f -L ", port, ":localhost:", port,
-                    " -N \\$(cat ", message_file_name, ")")
+                    " -N \\$(cat ", head_node, ")")
 
     ## commands to report login node and head node names
     tell = c("echo 'server login node: ' \\$(hostname)",
-             paste0("echo 'server head node: ' \\$(cat ",
-                    message_file_name, ")"))
+             paste0("echo 'server head node: ' \\$(cat ", head_node, ")"))
 
-    preload_script = c(cd, make_head_script_file, qsub, wait_run, tunnel, tell)
+    lnode_script = c(cd, make_pbs_script_file, qsub, wait_run, tunnel, tell)
 
     ## commands to write login node script to its file
-    make_preload_script_file = c(
-        paste0("cat >> ", preload_script_file_name, " << '..LNODE-EOF..'"),
-        preload_script,
-        "..LNODE-EOF.."
-    )
+    make_lnode_script_file = file_it(lnode_script, lnode_file, "..LNODE-EOF..")
 
     ## command to run the login node script
-    run_file = paste0("source ", preload_script_file_name)
+    run_file = paste0("source ", lnode_file)
 
     ## put it all together
-    preload_command = c(cd, clean, make_preload_script_file, run_file)
-    if(show) print(preload_command)
+    lnode_command = c(cd, clean, make_lnode_script_file, run_file)
+    if(show) print(lnode_command)
 
-    preload_command
+    lnode_command
 }
 
 #' Constructs a string of arguments for ssh exection on Rhea

@@ -6,9 +6,13 @@
 
 library(launchr)
 
-launch(nodes = 2, npernode = 16, server = "rhea.ccs.ornl.gov",
-       modules = c("r"), user = Sys.getenv("USER"), account = "your_account",
-       walltime = "01:00:00", rwd = "~/demo")
+##launch(nodes = 2, npernode = 16, server = "rhea.ccs.ornl.gov",
+##       modules = c("r"), user = Sys.getenv("USER"), account = "your_account",
+##       walltime = "01:00:00", rwd = "~/demo")
+
+launch(nodes = 2, npernode = 16, server = "or-condo-login.ornl.gov",
+       modules = c("R"), user = Sys.getenv("USER"), account = "ccsd",
+       walltime = "01:00:00", rwd = "~/test")
 
 ## server submitted in queue. You MUST wait for node report
 remoter::client() # submit ONLY when server head node reports
@@ -44,3 +48,4 @@ comm.print(x) # New concept: Who prints?
 comm.print(x, rank.print=19) # Can inspect data on other ranks
 
 exit(client.only=FALSE)
+
