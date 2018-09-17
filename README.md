@@ -25,6 +25,10 @@ manual process that learns from existing examples. Once a few clusters
 are configured, we plan to morph this into a more general and easier
 configuration process.
 
+For understanding how port forwarding works, see
+[stackexchange](https://unix.stackexchange.com/questions/115897/whats-ssh-port-forwarding-and-whats-the-difference-between-ssh-local-and-remot).
+
+
 ## Installation
 
 <!-- You can install the stable version from CRAN using the usual `install.packages()`:

@@ -1,0 +1,11 @@
+#PBS -N pbdR_server
+#PBS -A gen011
+#PBS -l walltime=01:00:00
+#PBS -l nodes=2
+#PBS -j oe
+#PBS -o pbdR_server.o
+module load r
+module list
+cd ~/eof/hosvd_code
+hostname > .pbdR_hostname
+mpirun  --map-by ppr:{{npernode}}:node Rscript -e 'pbdCS::pbdserver()'
