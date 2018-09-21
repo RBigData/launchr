@@ -124,7 +124,7 @@ lnode_script = function(fn, port, rwd = "~/", ...) {
     tell = c(
         "echo 'server login node: ' \\$(hostname)",
         paste0("echo 'server head node: ' \\$(cat ", fn$head_node_file, ")"),
-        "Server running ... ready for client connections."
+        "echo 'Server running ... ready for client connections'"
     )
 
     lnode_script = c(cd, make_pbs_file, qsub, wait_run, tunnel, tell)
