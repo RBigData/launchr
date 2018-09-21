@@ -21,8 +21,7 @@ Imports:
 Enhances: pbdCS, pbdMPI, pbdDMAT, kazaam
 ByteCompile: yes
 Authors@R: c(
-    person("George", "Ostrouchov", role=c("aut", "cre"), email="ostrouchovg@ornl.gov"), person("Drew", "Schmidt", role="aut"),
-    person("ORNL", role = "cph")
+    person("George", "Ostrouchov", role=c("aut", "cre"), email="ostrouchovg@ornl.gov"), person("Drew", "Schmidt", role="aut"), person("Wei-Chen", "Chen", role="aut"), person("ORNL", role = "cph")
     )
 URL: https://github.com/RBigData/launchr
 BugReports: https://github.com/RBigData/launchr/issues

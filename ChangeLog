@@ -1,3 +1,8 @@
+Release 0.2-0:
+  * Reconfigured custom configuration as editing of a default script
+  * Added more server start feedback
+  * Improved documentation
+
 Release 0.1-1:
   * Added or-condo-login configuration
   * Fixed some minor issues

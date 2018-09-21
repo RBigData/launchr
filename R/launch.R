@@ -1,59 +1,80 @@
 #' Launches a persistent pbdR server on a cluster
-#'
-#' @param nodes The number of nodes to allocate for the server.
-#' @param npernode The number of MPI ranks (R sessions) to start per node.
-#' @param walltime A string "hh:mm:ss" giving the maximum length of time
-#'                 in hours:minutes:seconds before server timeout shutdown.
-#' @param user Username for login.
-#' @param server Hostname to run the pbdR server, resolvable on your
-#'  platform.
-#' @param account Account used for your cluster allocation
-#' @param modules A vector of strings giving the modules to load before
-#' starting the server.
-#' @param rwd Remote working directory as a string.
+#' @param server A string giving the hostname to run the pbdR server,
+#'     resolvable on your local platform.
+#' @param user Username for server login.
+#' @param FUN A function that modifies the default ssh script. It is
+#'     called with \code{FUN(script, ...)} so it has access to
+#'     unmatched arguments in \code{launch()}. The default is the
+#'     identity function.
+#' @param port The port to be used for communication with the
+#'     server. Defaults to 55555.
+#' @param verbose If TRUE, print generated scripts before
+#'     submission. A value > 1 will also prevent script submission.
+#' @param fn A list of file names that will be created on the
+#'     server. Normally the defaults are fine.
+#' @param ... Arguments for script details. Typical parameters include
+#' \describe{
+#'   \item{nodes}{The number of nodes to allocate for the server.}
+#'   \item{npernode}{The number of MPI ranks (R sessions) to start per node.}
+#'   \item{walltime}{A string "hh:mm:ss" giving the maximum length of time in
+#'     hours:minutes:seconds before server timeout shutdown.}
+#'   \item{account}{Account used for your cluster allocation.}
+#'   \item{modules}{A vector of strings giving the modules to load before
+#'     starting the server.}
+#'   \item{rwd}{A string giving a working directory on server.}
+#' }
 #' @return A shell script as a vector of strings.
 #' @export
-launch = function(nodes, npernode = 16, server = "set_me",
-                  modules = NULL, user = Sys.getenv("USER"),
-                  account = NULL, walltime = "01:00:00", rwd = "~/") {
-    ## parameters that will eventually migrate to control structures
-    if(is.null(modules))
-        return(print("Please specify at least one module"))
-    if(is.null(account))
-        return(print("Please specify account"))
+launch = function(server,
+                  user = Sys.getenv("USER"),
+                  FUN = function(script, ...) script,
+                  port = 55555,
+                  verbose = FALSE,
+                  fn = list(
+                      lnode_file = ".pbdR_server.sh",
+                      pbs_file = ".pbdR_server.pbs",
+                      head_node_file = ".pbdR_server_hnode",
+                      server_log = ".pbdR_server.o"
+                  ),
+                  ...) {
 
-    port = 55555
+    ## files created on server in rwd directory
 
-    if(server == "rhea.ccs.ornl.gov") {
-        pscript = preload_rhea(nodes, npernode, account = account, rwd = rwd,
-                               modules = modules, port = port)
+    ## generate default script
+    preload = lnode_script(fn, port, ...)
+    args = ssh_args(port)
+    ## TODO try to infer script form server name
+    ## server = strsplit(SERVER, "[.]")[1]
 
-        args = args_rhea(port)
+    ## now process any modifications to the default by the FUN filter
+    ## does the function exist in user's environment?
+    FUN = match.fun(FUN)
+    preload = FUN(script = preload, ...)
 
-        rserver = pbdRPC::machine(hostname = server,
-                                  user = user,
-                                  exec.type = "ssh",
-                                  args = args)
+    ## TODO find a place to store user-contributed functions. inst/examples??
+    ##        file = system.file(paste0(deparse(substitute(FUN)), ".R"),
+    ##                           "examples", package = "launchr")
 
-    } else if(server == "or-condo-login.ornl.gov") {
-        pscript = preload_or_condo(nodes, npernode, account = account,
-                                   rwd = rwd,
-                                   modules = modules, port = port)
+    ## echo scripts if requested
+    if(verbose) {
+        cat("\nScript for login node:\n")
+        print(preload)
+        cat("\nLocal ssh parameters:\n")
+        print(args)
 
-        args = args_or_condo(port)
-
-        rserver = pbdRPC::machine(hostname = server,
-                                  user = user,
-                                  exec.type = "ssh",
-                                  args = args)
-
-    } else {
-        cat("Don't know how to launch on", server, "yet\n")
-        return(invisible(FALSE))
+        if(verbose > 1) {
+            cat("\nPrinted scripts only. No launch\n")
+            return(invisible(FALSE))
+        }
     }
 
-    pbdRPC::start_cs(machine = rserver, cmd = "",
-                     preload = paste0(pscript, collapse = "\n"))
-    return(invisible(TRUE))
+    ## set the machine parameters
+    rserver = pbdRPC::machine(hostname = server, user = user,
+                              exec.type = "ssh", args = args)
 
+    ## start server
+    pbdRPC::start_cs(machine = rserver, cmd = "",
+                     preload = paste0(preload, collapse = "\n"))
+
+    return(invisible(TRUE))
 }
