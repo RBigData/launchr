@@ -21,12 +21,12 @@ cades = function(script, nodes, ...) {
     c(script[1:(line - 1)], new_lines, script[(line + 1):length(script)])
 }
 
-## example of a launch using default scripts
-launch(server = "rhea.ccs.ornl.gov", verbose = 1,
+## example of a launch using default scripts (set verbose <2 to launch)
+launch(server = "rhea.ccs.ornl.gov", verbose = 2,
        nodes = 2, npernode = 16, modules = c("hdf5", "r"), account = "gen011",
        walltime = "01:00:00", rwd = "~/eof/hosvd_code", warn_on_fork = FALSE)
 
-## example of a launch using custom modification of a default script
+## example of a launch using custom modification of a default script (set verbose <2 to launch)
 launch(server = "or-condo-login.ornl.gov", FUN = cades, verbose = 2,
        nodes = 2, npernode = 16, modules = c("R"), account = "ccsd",
        walltime = "01:00:00", rwd = "~/test", warn_on_fork = FALSE)

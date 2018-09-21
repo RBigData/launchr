@@ -38,7 +38,7 @@ server. Normally the defaults are fine.}
   \item{account}{Account used for your cluster allocation.}
   \item{modules}{A vector of strings giving the modules to load before
     starting the server.}
-  \item{rwd}{Remote working directory as a string.}
+  \item{rwd}{A string giving a working directory on server.}
 }}
 }
 \value{
