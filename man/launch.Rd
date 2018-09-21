@@ -4,29 +4,42 @@
 \alias{launch}
 \title{Launches a persistent pbdR server on a cluster}
 \usage{
-launch(nodes, npernode = 16, server = "set_me", modules = NULL,
-  user = Sys.getenv("USER"), account = NULL, walltime = "01:00:00",
-  rwd = "~/")
+launch(server, user = Sys.getenv("USER"), FUN = function(script, ...)
+  script, port = 55555, verbose = FALSE, fn = list(lnode_file =
+  ".pbdR_server.sh", pbs_file = ".pbdR_server.pbs", head_node_file =
+  ".pbdR_server_hnode", server_log = ".pbdR_server.o"), ...)
 }
 \arguments{
-\item{nodes}{The number of nodes to allocate for the server.}
+\item{server}{A string giving the hostname to run the pbdR server,
+resolvable on your local platform.}
 
-\item{npernode}{The number of MPI ranks (R sessions) to start per node.}
+\item{user}{Username for server login.}
 
-\item{server}{Hostname to run the pbdR server, resolvable on your
-platform.}
+\item{FUN}{A function that modifies the default ssh script. It is
+called with \code{FUN(script, ...)} so it has access to
+unmatched arguments in \code{launch()}. The default is the
+identity function.}
 
-\item{modules}{A vector of strings giving the modules to load before
-starting the server.}
+\item{port}{The port to be used for communication with the
+server. Defaults to 55555.}
 
-\item{user}{Username for login.}
+\item{verbose}{If TRUE, print generated scripts before
+submission. A value > 1 will also prevent script submission.}
 
-\item{account}{Account used for your cluster allocation}
+\item{fn}{A list of file names that will be created on the
+server. Normally the defaults are fine.}
 
-\item{walltime}{A string "hh:mm:ss" giving the maximum length of time
-in hours:minutes:seconds before server timeout shutdown.}
-
-\item{rwd}{Remote working directory as a string.}
+\item{...}{Arguments for script details. Typical parameters include
+\describe{
+  \item{nodes}{The number of nodes to allocate for the server.}
+  \item{npernode}{The number of MPI ranks (R sessions) to start per node.}
+  \item{walltime}{A string "hh:mm:ss" giving the maximum length of time in
+    hours:minutes:seconds before server timeout shutdown.}
+  \item{account}{Account used for your cluster allocation.}
+  \item{modules}{A vector of strings giving the modules to load before
+    starting the server.}
+  \item{rwd}{Remote working directory as a string.}
+}}
 }
 \value{
 A shell script as a vector of strings.
