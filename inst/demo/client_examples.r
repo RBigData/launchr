@@ -22,7 +22,7 @@ cades = function(script, nodes, ...) {
 }
 
 ## example of a launch using default scripts
-launch(server = "rhea.ccs.ornl.gov", verbose = 2,
+launch(server = "rhea.ccs.ornl.gov", verbose = 1,
        nodes = 2, npernode = 16, modules = c("hdf5", "r"), account = "gen011",
        walltime = "01:00:00", rwd = "~/eof/hosvd_code", warn_on_fork = FALSE)
 
@@ -64,5 +64,5 @@ x = matrix(comm.rank()*10, nrow = 3, ncol = 4)
 comm.print(x) # New concept: Who prints?
 comm.print(x, rank.print=19) # Can inspect data on other ranks
 
-exit(client.only=FALSE)
+exit(client.only=FALSE) # shuts down server and exits client
 
