@@ -19,49 +19,47 @@
 #' }
 #' @return A shell script as a vector of strings.
 #' @export
-launch = function(SERVER, user = Sys.getenv("USER"), FUN = NULL,
+launch = function(SERVER, user = Sys.getenv("USER"), FUN = rhea, port = 55555,
                   verbose = FALSE, ...) {
+
+    ## files created on server in rwd directory
+    fn = list(
+        lnode_file = ".pbdR_server.sh",
+        pbs_file = ".pbdR_server.pbs",
+        head_node_file = ".pbdR_server_hnode",
+        server_log = ".pbdR_server.o"
+    )
+
     ## generate default script
-    preload = lnode_script(...)
-    args = ssh_args()
+    preload = lnode_script(fn, port, ...)
+    args = ssh_args(port)
     ## TODO try to infer script form server name
     ## server = strsplit(SERVER, "[.]")[1]
 
+    ## now process any modifications to the default by the FUN filter
+
+    ## does the function exist in user's environment?
+    FUN = match.fun(FUN)
+    preload = FUN(preload)
+
+
     if(verbose) {
-        print("Script for login node:")
+        cat("\nScript for login node:\n")
         print(preload)
-        print("Local ssh parameters:")
+        cat("\nLocal ssh parameters:\n")
         print(args)
 
-        if(verbose > 1) return("Printing script only. No launch")
-    }
-
-    ## now process any modifications to the default by the FUN filter
-    if(!is.null(FUN)) {
-        ## does the function exist in user's environment?
-        FUN_mod = try(match.fun(FUN, silent=TRUE))
-        if(class(FUN_mod) == "try-error") {
-            ## next, try to find it in inst/templates of launchr
-            template = system.file(server_fun, "templates", package = "launchr")
-            if(length(template) > 0) {
-                FUN_mod = template
-            } else {
-                return("FUN function not found")
-            }
+        if(verbose > 1) {
+            cat("\nPrinted scripts only. No launch\n")
+            return(invisible(FALSE))
         }
-
     }
-### I am here ... now reprocess default scripts with FUN or FUN_mod
-
-    port = 55555
-
-    scripts = FUN(...)
 
     rserver = pbdRPC::machine(hostname = SERVER, user = user, exec.type = "ssh",
-                              args = scripts$args)
+                              args = args)
 
     pbdRPC::start_cs(machine = rserver, cmd = "",
-                     preload = paste0(scripts$preload, collapse = "\n"))
-    return(invisible(TRUE))
+                     preload = paste0(preload, collapse = "\n"))
 
+    return(invisible(TRUE))
 }

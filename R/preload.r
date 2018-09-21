@@ -12,6 +12,10 @@ file_it = function(script, file_name, eof = NULL) {
     c(paste0("cat >> ", file_name, " << ", "'", eof, "'"), script, eof)
 }
 
+
+
+
+
 #' Creates a default pbs script as a vector of strings
 #' @param nodes Number of nodes to use for the server
 #' @param npernode Number of R instances to run per node
@@ -30,16 +34,16 @@ file_it = function(script, file_name, eof = NULL) {
 #' @param fn A list providing names used for script files that are
 #'     created in the server rwd directory.
 #' @return A shell script as a vector of strings.
-pbs_default = function(nodes = 1, npernode = 16, rwd = "~/", modules = "r",
-                       walltime = "01:00:00",
-                       account, warn_on_fork = TRUE, fn, ...) {
+pbs_default = function(nodes = 1, npernode = 16, modules = "r",
+                       walltime = "01:00:00", account,
+                       warn_on_fork = TRUE, fn = NULL, ..., rwd = "~/") {
   pbs = c(
     "#!/bin/bash",
     "#PBS -N pbdR_server",
     "#PBS -j oe",
-    "#PBS -o .pbdR_server.o",
+    paste0("#PBS -o ", fn$server_log),
     paste0("#PBS -A ", account),
-    paste0("#PBS -l walltime=", walltime)
+    paste0("#PBS -l walltime=", walltime),
     paste0("#PBS -l nodes=", nodes)
   )
 
@@ -60,6 +64,11 @@ pbs_default = function(nodes = 1, npernode = 16, rwd = "~/", modules = "r",
   c(pbs, mod_vec, commands)
 }
 
+
+
+
+
+
 #' Constructs a shell script as a vector of strings. Its purpose is to run
 #' in a login node shell and submit a pbdR server batch job that
 #' runs for a specified time or until closed. It also opens an ssh tunnel
@@ -69,7 +78,7 @@ pbs_default = function(nodes = 1, npernode = 16, rwd = "~/", modules = "r",
 #' @param rwd Remote working directory as a string.
 #' @param verbose Should the preload command be printed?
 #' @return A shell script as a vector of strings.
-lnode_script = function(port = 55555, ...) {
+lnode_script = function(fn, port, rwd = "~/", ...) {
     ## Returns a script as a vector of strings to run on a login node so that it
     ##    starts a pbdR server and opens an ssh tunnel to its head node on
     ##    the specified port
@@ -78,10 +87,11 @@ lnode_script = function(port = 55555, ...) {
     cd = paste0("cd ", rwd) # TODO where will this be matched?
 
     ## file cleanup command
-    clean = paste("rm -f", fn$pbs_file, fn$head_node_file, fn$lnode_file)
+    clean = paste("rm -f", fn$pbs_file, fn$head_node_file, fn$lnode_file,
+                  fn$server_log)
 
     ## commands to write pbs script to its file
-    pbs_script = pbs_default(...)
+    pbs_script = pbs_default(rwd = rwd, fn = fn, ...)
     make_pbs_file = file_it(pbs_script, fn$pbs_file, "..PBS-EOF..")
 
     ## command to qsub the script
@@ -115,6 +125,6 @@ lnode_script = function(port = 55555, ...) {
 #' Constructs a string of arguments for local ssh to forward a port
 #' @param port The port for server connection
 #' @value A string of ssh arguments.
-ssh_args = function(port = 55555) {
+ssh_args = function(port) {
     args = paste0(" -f -L ", port, ":localhost:", port)
 }

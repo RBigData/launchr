@@ -6,9 +6,23 @@
 
 library(launchr)
 
-launch(nodes = 2, npernode = 16, server = "rhea.ccs.ornl.gov",
-       modules = c("r"), user = Sys.getenv("USER"), account = "gen011",
-       walltime = "01:00:00", rwd = "~/eof/hosvd_code")
+cades = function(x, ...) {
+    cades_unique = c(
+        ## ppn=32 due to condo policy to concentrate cores on nodes when < 32
+        paste0("#PBS -l nodes=", nodes, ":ppn=32"),
+        "#PBS -l qos=std",
+        "#PBS -q batch",
+        "#PBS -W group_list=cades-ccsd",
+        "#PBS -m abe"
+    )
+    ## add code to replace line in script !!!!
+    script
+}
+
+rhea = function(x, ...) x
+
+launch(SERVER = "rhea.ccs.ornl.gov", FUN = rhea, verbose = 1, nodes = 2, npernode = 16,
+       account = "gen011", walltime = "01:00:00", rwd = "~/eof/hosvd_code", warn_on_fork = FALSE)
 
 launch(nodes = 2, npernode = 16, server = "or-condo-login.ornl.gov", modules = c("R"), user = Sys.getenv("USER"), account = "ccsd", walltime = "01:00:00", rwd = "~/test")
 
