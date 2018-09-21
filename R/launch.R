@@ -42,7 +42,11 @@ launch = function(SERVER, user = Sys.getenv("USER"), FUN = rhea, port = 55555,
     FUN = match.fun(FUN)
     preload = FUN(preload)
 
+    ## TODO find a place to store user-contributed functions. inst/examples??
+    ##        file = system.file(paste0(deparse(substitute(FUN)), ".R"),
+    ##                           "examples", package = "launchr")
 
+    ## print scripts if requested
     if(verbose) {
         cat("\nScript for login node:\n")
         print(preload)
@@ -55,9 +59,11 @@ launch = function(SERVER, user = Sys.getenv("USER"), FUN = rhea, port = 55555,
         }
     }
 
+    ## set the machine parameters
     rserver = pbdRPC::machine(hostname = SERVER, user = user, exec.type = "ssh",
                               args = args)
 
+    ## start server
     pbdRPC::start_cs(machine = rserver, cmd = "",
                      preload = paste0(preload, collapse = "\n"))
 
