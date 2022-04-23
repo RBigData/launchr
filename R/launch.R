@@ -76,5 +76,18 @@ launch = function(server,
     pbdRPC::start_cs(machine = rserver, cmd = "",
                      preload = paste0(preload, collapse = "\n"))
 
-    return(invisible(TRUE))
+    return(invisible(rserver))
+}
+
+## submission cancel script (a hack so far)
+##   may leave portion of a tunnel??!
+#' @export
+kill_server = function(machine, rwd) {
+    command = paste0(
+        "'echo `hostname`'",
+        "; PID=$(showq -u $USER | grep $USER | grep -o -E '^[0-9]+')",
+        "; qdel $PID; cd ", rwd,
+        "; echo 'killed' >> .pbdR_server_hnode"
+    )
+    pbdRPC::kill_rr(machine, command)
 }
