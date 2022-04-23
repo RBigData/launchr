@@ -14,9 +14,6 @@ here_doc = function(script, file_name, eof) {
     c(paste0("cat >> ", file_name, " << ", "'", eof, "'"), script, eof)
 }
 
-
-
-
 #' Creates a default pbs script as a vector of strings. Modification
 #' for platform-specific parameters should be done with a function via
 #' the FUN parameter of the \code{launch()} function rather than
@@ -69,11 +66,6 @@ pbs_default = function(nodes = 1, npernode = 16, modules = "r",
 
   c(pbs, mod_vec, commands)
 }
-
-
-
-
-
 
 #' Constructs a shell script as a vector of strings. Its purpose is to run
 #' in a login node shell and submit a pbdR server batch job that

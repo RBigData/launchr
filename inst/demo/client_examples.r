@@ -23,7 +23,7 @@ cades = function(script, nodes, ...) {
 
 ## example of a launch using default scripts (set verbose <2 to launch)
 srv = launch(server = "rhea.ccs.ornl.gov", verbose = 2,
-             nodes = 2, npernode = 16, modules = c("hdf5", "r/3.4.2"), account = "gen011",
+             nodes = 2, npernode = 16, modules = c("hdf5", "r"), account = "your_account",
              walltime = "01:00:00", rwd = "~/eof/hosvd_code", warn_on_fork = FALSE)
 
 ## example of a launch using custom modification of a default script 

@@ -41,7 +41,7 @@ system, use \code{grDevices::dev.off()} to bypass a modified
 install.packages("launchr")
 ``` -->
 
-A stable development version is maintained on GitHub:
+A development version is maintained on GitHub:
 
 ```r
 remotes::install_github("RBigData/launchr")
