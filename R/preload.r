@@ -62,6 +62,7 @@ pbs_default = function(nodes = 1, npernode = 16, modules = "r",
     "module list",
     paste0("cd ", rwd),
     paste0("hostname > ", fn$head_node_file),
+    paste0("echo $PBS_JOBID >> ", fn$head_node_file),
     paste0("mpirun ", wof, " --map-by ppr:", npernode,
            ":node Rscript -e 'pbdCS::pbdserver()'")
   )

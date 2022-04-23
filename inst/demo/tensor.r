@@ -1,8 +1,8 @@
 library(launchr)
 
 launch(nodes = 4, npernode = 16, server = "rhea.ccs.ornl.gov",
-       modules = c("r", "hdf5"), user = Sys.getenv("USER"),
-       account = "your_account", walltime = "01:00:00", rwd = "~")
+       modules = c("r", "hdf5"), account = "gen011",
+       walltime = "01:00:00", rwd = "~/eof/hosvd_code")
 ## server submitted in queue. You MUST wait for it to start.
 remoter::client() # submit ONLY when server head node reports
 comm.size()
